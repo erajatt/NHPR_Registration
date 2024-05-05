@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import AodIcon from "@mui/icons-material/Aod";
 import LoopIcon from "@mui/icons-material/Loop";
@@ -12,13 +12,16 @@ const Login = () => {
   const [isValid, setIsValid] = useState(false);
 
   const generateRandomNumbers = () => {
-    const random1 = Math.floor(Math.random() * 10) + 1; // Generate random number between 1 and 10
-    const random2 = Math.floor(Math.random() * 10) + 1;
+    const random1 = Math.floor(Math.random() * 100) + 1; // Generate random number between 1 and 10
+    const random2 = Math.floor(Math.random() * 100) + 1;
     setNum1(random1);
     setNum2(random2);
     setSum(""); // Clear the input field
     setIsValid(false); // Reset validation state
   };
+  useEffect(() => {
+    generateRandomNumbers();
+  }, []);
 
   const handleSumChange = (e) => {
     const inputSum = parseInt(e.target.value, 10);
@@ -86,7 +89,7 @@ const Login = () => {
         ) : (
           <>
             <p>Registered Mobile No.</p>
-            <div className="flex mb-4 mt-2">
+            <div className="flex mb-8 mt-2">
               <input
                 type="text"
                 placeholder="+91"
@@ -126,14 +129,16 @@ const Login = () => {
             onClick={handleSubmit}
             disabled={!isValid} // Disable the button if sum is invalid
             className={`w-auto px-28 py-3 ${
-              isValid ? "bg-orange-600 text-white" : "bg-gray-300 text-gray-500"
+              isValid
+                ? "bg-orange-600 text-white"
+                : "bg-orange-400 text-gray-200"
             } rounded-md`}
           >
             Login
           </button>
         </div>
         <div className="flex justify-center mt-4">
-          Do not have an account?  
+          Do not have an account?
           <a href="/register" className="text-orange-600 ml-2">
             Register here.
           </a>

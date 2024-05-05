@@ -5,7 +5,7 @@ import { Search } from "@mui/icons-material";
 const Navbar = () => {
   return (
     <div className="h-10vh bg-blue-900 flex justify-between items-center z-50 text-white sticky px-24 py-2">
-      <ul className="flex space-x-6">
+      <ul className="flex space-x-6 ml-5">
         <li>
           <Link to="/" className="hover:text-yellow-500"> {/* Added hover:text-yellow-500 */}
             Home
@@ -27,7 +27,7 @@ const Navbar = () => {
           </Link>
         </li>
       </ul>
-      <div className="relative flex items-center">
+      <div className="relative flex items-center mx-2">
         <input
           type="text"
           placeholder="Know your doctor/facility"

@@ -7,11 +7,12 @@ import Login from "./pages/Login";
 import About from "./pages/About";
 import Resource from "./pages/Resource";
 import Support from "./pages/Support";
+import RegistrationForm from "./pages/RegistrationForm";
 import Header from "./components/Header";
 
 function App() {
   return (
-    <div className="bg-slate-200">
+    <div className="bg-slate-200 min-h-screen">
       <BrowserRouter>
       <Header/>
       <Navbar />
@@ -22,6 +23,7 @@ function App() {
           <Route path="/support" element={<Support />} />
           <Route path="/resource" element={<Resource />} />
           <Route path="/about" element={<About />} />
+          <Route path="/registrationform" element={<RegistrationForm />} />
         </Routes>
       </BrowserRouter>
     </div>
