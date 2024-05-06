@@ -59,7 +59,7 @@ const Register = () => {
         setToken(response.data.token);
         setCookie("token", response.data.token);
         window.localStorage.setItem("token", response.data.token);
-        console.log(response.data.token);
+        //console.log(response.data.token);
         const response1 = await axios.post(
           "https://nhpr-registration.onrender.com/api/register/sendOTP",
           {
@@ -68,7 +68,7 @@ const Register = () => {
           }
         );
 
-        console.log(response1.data);
+        //console.log(response1.data);
         if (response1.data.success) {
           toast.info("Enter OTP sent to your Aadhaar linked mobile number.");
           setStep(2);
@@ -76,7 +76,7 @@ const Register = () => {
           toast.error("OTP couldn't be sent.");
         }
       } else {
-        toast.error("Some error occured. Please try again.");
+        toast.error(response.data.message);
       }
     } catch (error) {
       toast.error(error);
@@ -84,7 +84,6 @@ const Register = () => {
   };
 
   const handleCancel = () => {
-    // Handle form submission
     navigate("/");
   };
 
@@ -104,7 +103,6 @@ const Register = () => {
       const newOtp = [...otp];
       newOtp[index] = e.target.value;
 
-      // Move cursor to next input box on typing a digit
       if (e.target.value && index < otp.length - 1) {
         inputRefs[index + 1].focus();
       }
@@ -113,7 +111,6 @@ const Register = () => {
     };
 
     const handleKeyDown = (index, e) => {
-      // Move cursor to previous input box on pressing backspace in an empty box
       if (e.key === "Backspace" && !otp[index] && index > 0) {
         inputRefs[index - 1].focus();
       }
@@ -122,7 +119,7 @@ const Register = () => {
     const handleSubmit2 = async () => {
       try {
         const otpString = otp.join("");
-        console.log(otpString);
+        //console.log(otpString);
         const response = await axios.post(
           "https://nhpr-registration.onrender.com/api/register/verifyOTP",
           { code: otpString, token, phone: "+919982805879" }
@@ -133,7 +130,7 @@ const Register = () => {
           );
           navigate("/registrationForm");
         } else {
-          toast.error("Some error occurred!");
+          toast.error(response.data.message);
         }
       } catch (error) {
         console.error(error);

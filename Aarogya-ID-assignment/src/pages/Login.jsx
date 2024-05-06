@@ -36,7 +36,7 @@ const Login = () => {
 
   const handleSubmit = () => {
     // Handle form submission
-    console.log("Form submitted!");
+    //console.log("Form submitted!");
   };
 
   const handleCancel = () => {

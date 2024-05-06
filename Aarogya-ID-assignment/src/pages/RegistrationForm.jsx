@@ -8,7 +8,6 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 const RegistrationForm = () => {
-  // State to store selected district and sub-district
   const [formData, setFormData] = useState({
     phone: "",
     email: "",
@@ -25,14 +24,12 @@ const RegistrationForm = () => {
 
   const navigate = useNavigate();
 
-  // State for password visibility
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [showMobileOtpPopup, setShowMobileOtpPopup] = useState(false);
   const [otpValue, setOtpValue] = useState("");
   const [token, setToken] = useState("");
 
-  // Define the roles (A, B, C)
   const roles = [
     "I am a Healthcare Professional",
     "I am a Facility manager/administrator",
@@ -43,18 +40,38 @@ const RegistrationForm = () => {
     "I am a Facility manager/administrator": ["facility manager"],
     "I am a Healthcare Professional and Facility Manager": ["doctor", "nurse"],
   };
+  const districts = ["Delhi", "Mumbai", "Kolkata"];
+
+  const subDistricts = ["South Delhi", "Central Mumbai", "North Kolkata"];
+
+  const subCategoryOptions = {
+    doctor: [
+      "Modern Medicine",
+      "Dentist",
+      "Ayurveda",
+      "Unani",
+      "Siddha",
+      "Homeopathy",
+      "Sowa-Rigpa",
+    ],
+    nurse: [
+      "Registered Auxiliary Nurse Midwife (RANM)",
+      "Registered Nurse (RN)",
+      "Registered Nurse and Registered Midwife (RN & RM)",
+      "Registered Lady Health Visitor (RLHV)",
+    ],
+  };
 
   useEffect(() => {
     setToken(window.localStorage.getItem("token"));
   }, []);
 
-  // Function to handle role selection
   const handleRoleChange = (role) => {
     setFormData({
       ...formData,
       role,
-      category: "", // Reset category selection when role changes
-      subCategory: "", // Reset sub-category selection when role changes
+      category: "",
+      subCategory: "",
     });
   };
 
@@ -76,21 +93,21 @@ const RegistrationForm = () => {
   };
 
   const handleSubmit = async () => {
-    console.log(formData);
+    //console.log(formData);
     try {
       const response = await axios.post(
         "https://nhpr-registration.onrender.com/api/register/userAadhaarUpdateControl",
         formData
       );
-      console.log("Response:", response.data);
+      //console.log("Response:", response.data);
       if (response.data.success) {
         toast.success("Registration successful. Log in to continue.");
         navigate("/login");
       } else {
-        toast.error("Some error occured!");
+        toast.error(response.data.message);
       }
     } catch (error) {
-      console.error("Error:", error);
+      toast.error(error);
     }
   };
 
@@ -119,27 +136,6 @@ const RegistrationForm = () => {
       );
     }
   };
-  // Dummy data for districts and sub-districts (replace with actual data)
-  const districts = [
-    "Delhi",
-    "Mumbai",
-    "Kolkata",
-    // ... Add other districts here
-  ];
-
-  const subDistricts = [
-    "South Delhi",
-    "Central Mumbai",
-    "North Kolkata",
-    // ... Add other sub-districts here
-  ];
-
-  const subCategories = [
-    "South Delhi",
-    "Central Mumbai",
-    "North Kolkata",
-    // ... Add other sub-districts here
-  ];
 
   const OTPInput = () => {
     const [otp, setOtp] = useState(["", "", "", "", "", ""]); // Array to hold OTP digits
@@ -149,7 +145,6 @@ const RegistrationForm = () => {
       const newOtp = [...otp];
       newOtp[index] = e.target.value;
 
-      // Move cursor to next input box on typing a digit
       if (e.target.value && index < otp.length - 1) {
         inputRefs[index + 1].focus();
       }
@@ -158,7 +153,6 @@ const RegistrationForm = () => {
     };
 
     const handleKeyDown = (index, e) => {
-      // Move cursor to previous input box on pressing backspace in an empty box
       if (e.key === "Backspace" && !otp[index] && index > 0) {
         inputRefs[index - 1].focus();
       }
@@ -167,7 +161,7 @@ const RegistrationForm = () => {
     const handleOtpSubmit = async () => {
       try {
         const otpString = otp.join("");
-        console.log(otpString);
+        //console.log(otpString);
         const response = await axios.post(
           "https://nhpr-registration.onrender.com/api/register/verifyOTP",
           { code: otpString, token, phone: `+91${formData.phone}` }
@@ -179,7 +173,7 @@ const RegistrationForm = () => {
           );
           navigate("/registrationForm");
         } else {
-          toast.error("Some error occurred!");
+          toast.error(response.data.message);
         }
       } catch (error) {
         console.error(error);
@@ -350,27 +344,27 @@ const RegistrationForm = () => {
         ))}
         {formData.role && (
           <>
-            <div className="flex justify-between space-x-4 mt-4">
-              <div className="w-1/3">
-                <label htmlFor="category" className="font-semibold flex">
-                  Category<span className="text-orange-600">*</span>
-                </label>
-                <select
-                  id="category"
-                  name="category"
-                  className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md cursor-pointer"
-                  value={formData.category}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select category</option>
-                  {categoryOptions[formData.role].map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="w-1/3">
+              <label htmlFor="category" className="font-semibold flex">
+                Category<span className="text-orange-600">*</span>
+              </label>
+              <select
+                id="category"
+                name="category"
+                className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md cursor-pointer"
+                value={formData.category}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select category</option>
+                {categoryOptions[formData.role]?.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {(formData.category === "doctor" || formData.category === "nurse") && (
               <div className="w-1/3">
                 <label htmlFor="subCategory" className="font-semibold flex">
                   Sub-Category<span className="text-orange-600">*</span>
@@ -383,17 +377,17 @@ const RegistrationForm = () => {
                   onChange={handleChange}
                 >
                   <option value="">Select Sub-Category</option>
-                  {subCategories.map((subCategory) => (
+                  {subCategoryOptions[formData.category]?.map((subCategory) => (
                     <option key={subCategory} value={subCategory}>
                       {subCategory}
                     </option>
                   ))}
                 </select>
               </div>
-              <div className="w-1/3"></div>
-            </div>
+            )}
           </>
         )}
+
         <div className="flex justify-between space-x-4">
           <div className="w-1/3 font-semibold flex">
             Healthcare Professional ID/username
@@ -480,8 +474,6 @@ const RegistrationForm = () => {
             </button>
           </div>
         </div>
-
-        {/* Other form fields */}
       </div>
     </div>
   );
