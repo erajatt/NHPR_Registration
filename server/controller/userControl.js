@@ -49,16 +49,16 @@ const userSendVerifiactionEmail = async (req, res) => {
     host: "smtp.gmail.com",
     port: 465,
     auth: {
-      user: "kalpit1018@gmail.com",
+      user: "rajatrkb6@gmail.com",
       pass: process.env.PASS_EMAIL,
     },
   });
 
   const mailOptions = {
-    from: "kalpit1018@gmail.com",
+    from: "rajatrkb6@gmail.com",
     to: email,
-    subject: "NHPR Email Verifiacation",
-    html: `To verify your Email click on the <a href='http://localhost:3001/api/register/verifyEmail?token=${token}'>link</a>`,
+    subject: "NHPR Email Verification",
+    html: `To verify your Email click on the <a href='https://nhpr-registration.onrender.com/api/register/verifyEmail?token=${token}'>link</a>`,
   };
 
   try {
