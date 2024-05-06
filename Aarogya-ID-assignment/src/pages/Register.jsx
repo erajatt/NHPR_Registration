@@ -20,7 +20,7 @@ const Register = () => {
   const [passwordVisible, setPasswordVisible] = useState(false); // State to track password visibility
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies(["token"]);
-  const [token, setToken]=useState("token");
+  const [token, setToken] = useState("token");
 
   const generateRandomNumbers = () => {
     const random1 = Math.floor(Math.random() * 100) + 1; // Generate random number between 1 and 10
@@ -49,7 +49,7 @@ const Register = () => {
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/register/aadhaar",
+        "https://nhpr-registration.onrender.com/api/register/aadhaar",
         {
           aadhaar: idNumber,
         }
@@ -58,23 +58,22 @@ const Register = () => {
       if (response.data.success) {
         setToken(response.data.token);
         setCookie("token", response.data.token);
-        window.localStorage.setItem("token",response.data.token);
-        console.log(response.data.token)
+        window.localStorage.setItem("token", response.data.token);
+        console.log(response.data.token);
         const response1 = await axios.post(
-          "http://localhost:3001/api/register/sendOTP",
+          "https://nhpr-registration.onrender.com/api/register/sendOTP",
           {
             phone: "+918305341853",
-            token:response.data.token,
+            token: response.data.token,
           }
         );
-        
+
         console.log(response1.data);
         if (response1.data.success) {
           toast.info("Enter OTP sent to your Aadhaar linked mobile number.");
           setStep(2);
-        }
-        else{
-          toast.error("OTP couldn't be sent.")
+        } else {
+          toast.error("OTP couldn't be sent.");
         }
       } else {
         toast.error("Some error occured. Please try again.");
@@ -124,9 +123,14 @@ const Register = () => {
       try {
         const otpString = otp.join("");
         console.log(otpString);
-        const response = await axios.post("http://localhost:3001/api/register/verifyOTP", { code: otpString, token, phone: "+918305341853" });
+        const response = await axios.post(
+          "https://nhpr-registration.onrender.com/api/register/verifyOTP",
+          { code: otpString, token, phone: "+918305341853" }
+        );
         if (response.data.success) {
-          toast.success("OTP verification successful. Fill the registartion form.");
+          toast.success(
+            "OTP verification successful. Fill the registartion form."
+          );
           navigate("/registrationForm");
         } else {
           toast.error("Some error occurred!");

@@ -1,23 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import RadioButtonUncheckedOutlinedIcon from "@mui/icons-material/RadioButtonUncheckedOutlined";
 import RadioButtonCheckedRoundedIcon from "@mui/icons-material/RadioButtonCheckedRounded";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const RegistrationForm = () => {
   // State to store selected district and sub-district
   const [formData, setFormData] = useState({
-    mobileNumber: "",
+    phone: "",
     email: "",
-    dateOfBirth: "",
+    dob: "",
     district: "",
     subDistrict: "",
     role: "",
     category: "",
     subCategory: "",
-    idUsername: "",
+    username: "",
     password: "",
     confirmPassword: "",
   });
@@ -29,6 +30,7 @@ const RegistrationForm = () => {
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [showMobileOtpPopup, setShowMobileOtpPopup] = useState(false);
   const [otpValue, setOtpValue] = useState("");
+  const [token, setToken] = useState("");
 
   // Define the roles (A, B, C)
   const roles = [
@@ -42,6 +44,10 @@ const RegistrationForm = () => {
     "I am a Healthcare Professional and Facility Manager": ["doctor", "nurse"],
   };
 
+  useEffect(() => {
+    setToken(window.localStorage.getItem("token"));
+  }, []);
+
   // Function to handle role selection
   const handleRoleChange = (role) => {
     setFormData({
@@ -54,13 +60,6 @@ const RegistrationForm = () => {
 
   const handleOtpInputChange = (e) => {
     setOtpValue(e.target.value);
-  };
-
-  const handleOtpSubmit = () => {
-    // Submit the OTP for verification
-    // You can add your OTP verification logic here
-    console.log("Submitted OTP:", otpValue);
-    setShowOtpPopup(false); // Close OTP popup
   };
 
   const togglePasswordVisibility = () => {
@@ -79,7 +78,10 @@ const RegistrationForm = () => {
   const handleSubmit = async () => {
     console.log(formData);
     try {
-      const response = await axios.post("apii", formData);
+      const response = await axios.post(
+        "https://nhpr-registration.onrender.com/api/register/userAadhaarUpdateControl",
+        formData
+      );
       console.log("Response:", response.data);
       if (response.data.success) {
         toast.success("Registration successful. Log in to continue.");
@@ -92,13 +94,29 @@ const RegistrationForm = () => {
     }
   };
 
-  const handleVerifyPhoneNumber = async () => {
-    const response = axios.post("apii", token);
+  const handleVerifyEmail = async () => {
+    const response = await axios.post(
+      "https://nhpr-registration.onrender.com/api/register/sendVerificationEmail",
+      token
+    );
     if (response.data.success) {
+      toast.success("Verification link has been sent to your email address.");
+    }
+  };
+
+  const handleVerifyPhoneNumber = async () => {
+    const response = await axios.post(
+      "https://nhpr-registration.onrender.com/api/register/sendOTP",
+      {
+        token,
+        phone: `+91${formData.phone}`,
+      }
+    );
+    if (response.data.success) {
+      setShowMobileOtpPopup(true);
       toast.info(
         "Please enter the OTP received on your mobile number to continue."
       );
-      setShowMobileOtpPopup(true);
     }
   };
   // Dummy data for districts and sub-districts (replace with actual data)
@@ -146,11 +164,33 @@ const RegistrationForm = () => {
       }
     };
 
+    const handleOtpSubmit = async () => {
+      try {
+        const otpString = otp.join("");
+        console.log(otpString);
+        const response = await axios.post(
+          "https://nhpr-registration.onrender.com/api/register/verifyOTP",
+          { code: otpString, token, phone: `+91${formData.phone}` }
+        );
+        if (response.data.success) {
+          setShowMobileOtpPopup(false); // Close OTP popup
+          toast.success(
+            "OTP verification successful. Fill the registartion form."
+          );
+          navigate("/registrationForm");
+        } else {
+          toast.error("Some error occurred!");
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
     return (
       <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
         <div className="bg-white p-6 rounded-md max-w-md">
           <h2 className="text-xl font-semibold mb-4">
-            Enter OTP sent to your mobile number ${formData.mobileNumber}
+            Enter OTP sent to your mobile number ${formData.phone}
           </h2>
           <div className="flex justify-center space-x-4">
             {otp.map((digit, index) => (
@@ -176,9 +216,10 @@ const RegistrationForm = () => {
       </div>
     );
   };
+
   return (
     <div className="flex justify-center items-center">
-      {showMobileOtpPopup && <OTPInput/>}
+      {showMobileOtpPopup && <OTPInput />}
       <div className="bg-white px-6 py-4 rounded-md w-4/5 my-6">
         <div className="w-full px-4 py-2 my-2 mb-4 text-white bg-blue-900 border rounded-md">
           <h1 className="text-lg font-semibold">
@@ -199,9 +240,9 @@ const RegistrationForm = () => {
         <div className="flex justify-between space-x-4">
           <div className="relative w-1/3">
             <input
-              name="mobileNumber"
+              name="phone"
               type="tel"
-              value={formData.mobileNumber}
+              value={formData.phone}
               onChange={handleChange}
               className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
               required
@@ -222,14 +263,17 @@ const RegistrationForm = () => {
               className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
               required
             />
-            <button className="absolute top-5 right-5 text-orange-600 rounded-md">
+            <button
+              className="absolute top-5 right-5 text-orange-600 rounded-md"
+              onClick={handleVerifyEmail}
+            >
               Verify
             </button>
           </div>
           <div className="relative w-1/3">
             <input
-              name="dateOfBirth"
-              value={formData.dateOfBirth}
+              name="dob"
+              value={formData.dob}
               onChange={handleChange}
               className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
               required
@@ -365,9 +409,9 @@ const RegistrationForm = () => {
         <div className="flex justify-between space-x-4">
           <div className="relative w-1/3">
             <input
-              name="idUsername"
+              name="username"
               className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
-              value={formData.idUsername}
+              value={formData.username}
               onChange={handleChange}
               required
             />
