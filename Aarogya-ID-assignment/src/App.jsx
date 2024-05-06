@@ -9,11 +9,14 @@ import Resource from "./pages/Resource";
 import Support from "./pages/Support";
 import RegistrationForm from "./pages/RegistrationForm";
 import Header from "./components/Header";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
     <div className="bg-slate-200 min-h-screen">
       <BrowserRouter>
+      <ToastContainer autoClose={2000} />
       <Header/>
       <Navbar />
         <Routes>

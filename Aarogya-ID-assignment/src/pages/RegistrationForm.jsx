@@ -3,6 +3,8 @@ import RadioButtonUncheckedOutlinedIcon from "@mui/icons-material/RadioButtonUnc
 import RadioButtonCheckedRoundedIcon from "@mui/icons-material/RadioButtonCheckedRounded";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const RegistrationForm = () => {
   // State to store selected district and sub-district
@@ -20,9 +22,13 @@ const RegistrationForm = () => {
     confirmPassword: "",
   });
 
+  const navigate = useNavigate();
+
   // State for password visibility
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [showMobileOtpPopup, setShowMobileOtpPopup] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
 
   // Define the roles (A, B, C)
   const roles = [
@@ -46,6 +52,17 @@ const RegistrationForm = () => {
     });
   };
 
+  const handleOtpInputChange = (e) => {
+    setOtpValue(e.target.value);
+  };
+
+  const handleOtpSubmit = () => {
+    // Submit the OTP for verification
+    // You can add your OTP verification logic here
+    console.log("Submitted OTP:", otpValue);
+    setShowOtpPopup(false); // Close OTP popup
+  };
+
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
@@ -64,9 +81,24 @@ const RegistrationForm = () => {
     try {
       const response = await axios.post("apii", formData);
       console.log("Response:", response.data);
-      // Add any additional logic here after successful API call
+      if (response.data.success) {
+        toast.success("Registration successful. Log in to continue.");
+        navigate("/login");
+      } else {
+        toast.error("Some error occured!");
+      }
     } catch (error) {
       console.error("Error:", error);
+    }
+  };
+
+  const handleVerifyPhoneNumber = async () => {
+    const response = axios.post("apii", token);
+    if (response.data.success) {
+      toast.info(
+        "Please enter the OTP received on your mobile number to continue."
+      );
+      setShowMobileOtpPopup(true);
     }
   };
   // Dummy data for districts and sub-districts (replace with actual data)
@@ -91,8 +123,62 @@ const RegistrationForm = () => {
     // ... Add other sub-districts here
   ];
 
+  const OTPInput = () => {
+    const [otp, setOtp] = useState(["", "", "", "", "", ""]); // Array to hold OTP digits
+    const inputRefs = []; // Array to hold input refs
+
+    const handleInputChange = (index, e) => {
+      const newOtp = [...otp];
+      newOtp[index] = e.target.value;
+
+      // Move cursor to next input box on typing a digit
+      if (e.target.value && index < otp.length - 1) {
+        inputRefs[index + 1].focus();
+      }
+
+      setOtp(newOtp);
+    };
+
+    const handleKeyDown = (index, e) => {
+      // Move cursor to previous input box on pressing backspace in an empty box
+      if (e.key === "Backspace" && !otp[index] && index > 0) {
+        inputRefs[index - 1].focus();
+      }
+    };
+
+    return (
+      <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
+        <div className="bg-white p-6 rounded-md max-w-md">
+          <h2 className="text-xl font-semibold mb-4">
+            Enter OTP sent to your mobile number ${formData.mobileNumber}
+          </h2>
+          <div className="flex justify-center space-x-4">
+            {otp.map((digit, index) => (
+              <input
+                key={index}
+                ref={(ref) => (inputRefs[index] = ref)}
+                type="text"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleInputChange(index, e)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                className="w-12 h-12 mx-2 text-center border-blue-300 border rounded-md"
+              />
+            ))}
+          </div>
+          <button
+            className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-md"
+            onClick={handleOtpSubmit}
+          >
+            Submit OTP
+          </button>
+        </div>
+      </div>
+    );
+  };
   return (
     <div className="flex justify-center items-center">
+      {showMobileOtpPopup && <OTPInput/>}
       <div className="bg-white px-6 py-4 rounded-md w-4/5 my-6">
         <div className="w-full px-4 py-2 my-2 mb-4 text-white bg-blue-900 border rounded-md">
           <h1 className="text-lg font-semibold">
@@ -120,7 +206,10 @@ const RegistrationForm = () => {
               className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
               required
             />
-            <button className="absolute top-5 right-5 text-orange-600 rounded-md">
+            <button
+              className="absolute top-5 right-5 text-orange-600 rounded-md"
+              onClick={handleVerifyPhoneNumber}
+            >
               Verify
             </button>
           </div>

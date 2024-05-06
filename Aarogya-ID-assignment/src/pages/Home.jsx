@@ -1,10 +1,12 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+  const navigate=useNavigate();
   return (
     <>
       <div className="absolute top-6 right-24 z-50">
-        <button className="px-5 py-3 bg-orange-600 text-white rounded-md mr-2 hover:bg-orange-700">
+        <button className="px-5 py-3 bg-orange-600 text-white rounded-md mr-2 hover:bg-orange-700" onClick={()=>{navigate("/login")}}>
           Login/Registration
         </button>
         <button className="px-5 py-3 bg-orange-600 text-white rounded-md mr-2 hover:bg-orange-700">
