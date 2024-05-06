@@ -10,8 +10,6 @@ const userAadhaarRegisterControl = async (req, res) => {
 
   try {
     const user1 = await userModel.findOne({ aadhaar });
-
-    // Check if user already Exists.
     if (user1) {
       console.log(`Aadhaar:${aadhaar} already exist!`);
       return res.json({
