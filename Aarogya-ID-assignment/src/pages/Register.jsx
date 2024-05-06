@@ -63,7 +63,7 @@ const Register = () => {
         const response1 = await axios.post(
           "https://nhpr-registration.onrender.com/api/register/sendOTP",
           {
-            phone: "+918305341853",
+            phone: "+919982805879",
             token: response.data.token,
           }
         );
@@ -125,7 +125,7 @@ const Register = () => {
         console.log(otpString);
         const response = await axios.post(
           "https://nhpr-registration.onrender.com/api/register/verifyOTP",
-          { code: otpString, token, phone: "+918305341853" }
+          { code: otpString, token, phone: "+919982805879" }
         );
         if (response.data.success) {
           toast.success(
