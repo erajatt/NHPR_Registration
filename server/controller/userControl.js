@@ -11,7 +11,7 @@ const userAadhaarRegisterControl = async (req, res) => {
   try {
     const user1 = await userModel.findOne({ aadhaar });
     if (user1) {
-      console.log(`Aadhaar:${aadhaar} already exist!`);
+      //console.log(`Aadhaar:${aadhaar} already exist!`);
       return res.json({
         message: `User with aadhaar already exists!`,
         success: false,
@@ -31,7 +31,7 @@ const userAadhaarRegisterControl = async (req, res) => {
     });
   } catch (error) {
     await userModel.findOneAndDelete({ aadhaar });
-    console.log("Error: ", error.message);
+    //console.log("Error: ", error.message);
     return res.json({
       message: "Some error occured please try again!",
       success: false,
@@ -62,20 +62,20 @@ const userSendVerifiactionEmail = async (req, res) => {
   try {
     transporter.sendMail(mailOptions, async (error, info) => {
       if (error) {
-        console.log(`Error sending Verification email\n ${error}`);
+        //console.log(`Error sending Verification email\n ${error}`);
         return res.json({
           message: `Error sending Verification email .`,
           success: false,
         });
       }
-      console.log("Email sent:", info?.response);
+      //console.log("Email sent:", info?.response);
       return res.json({
         message: `Verification email sent to ${email}`,
         success: true,
       });
     });
   } catch (err) {
-    console.log("Error sending email Verification:", err);
+    //console.log("Error sending email Verification:", err);
   }
 };
 
@@ -85,13 +85,13 @@ const userVerifyEmail = async (req, res) => {
   const aadhaar = decodedToken.id;
   try {
     await userModel.findOneAndUpdate({ aadhaar }, { emailVerified: true });
-    console.log(req.query);
+    //console.log(req.query);
     return res.json({
       message: `Email Verified ${token}`,
       success: true,
     });
   } catch (error) {
-    console.log("Error: ", error.message);
+    //console.log("Error: ", error.message);
     return res.json({
       message: "Some error occured please try again!",
       success: false,
@@ -120,7 +120,7 @@ const userSendOTP = async (req, res) => {
         });
       });
   } catch (error) {
-    console.log(error.message);
+    //console.log(error.message);
     return res.json({
       message: "Failed to send OTP. Try again",
       success: false,
@@ -143,7 +143,7 @@ const userVerifyOTP = async (req, res) => {
       .verificationChecks.create({ to: phone, code })
       .then(async (verification_check) => {
         if (verification_check.valid) {
-          console.log("OTP matched");
+          //console.log("OTP matched");
           await userModel.findOneAndUpdate(
             { aadhaar },
             { accountVerified: true, phoneVerified: true }
@@ -153,7 +153,7 @@ const userVerifyOTP = async (req, res) => {
             success: true,
           });
         } else {
-          console.log("Wrong OTP");
+          //console.log("Wrong OTP");
           res.json({
             message: "wrong OTP entered. Try again!",
             success: false,
@@ -161,7 +161,7 @@ const userVerifyOTP = async (req, res) => {
         }
       });
   } catch (error) {
-    console.log("Error: ", error.message);
+    //console.log("Error: ", error.message);
     return res.json({
       message: "Some error occured please try again!",
       success: false,
@@ -219,14 +219,14 @@ const userAadhaarUpdateControl = async (req, res) => {
         }
       );
 
-      console.log(`Details Updated.`);
+      //console.log(`Details Updated.`);
       return res.json({
         message: "Details updated.",
         success: true,
       });
     }
   } catch (error) {
-    console.log("Error: ", error.message);
+    //console.log("Error: ", error.message);
     return res.json({
       message: "Some error occured please try again!",
       success: false,
