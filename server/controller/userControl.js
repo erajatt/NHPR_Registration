@@ -11,7 +11,7 @@ const userAadhaarRegisterControl = async (req, res) => {
   try {
     const user1 = await userModel.findOne({ aadhaar });
     if (user1) {
-      //console.log(`Aadhaar:${aadhaar} already exist!`);
+      console.log(`Aadhaar:${aadhaar} already exist!`);
       return res.json({
         message: `User with aadhaar already exists!`,
         success: false,
@@ -31,7 +31,7 @@ const userAadhaarRegisterControl = async (req, res) => {
     });
   } catch (error) {
     await userModel.findOneAndDelete({ aadhaar });
-    //console.log("Error: ", error.message);
+    console.log("Error: ", error.message);
     return res.json({
       message: "Some error occured please try again!",
       success: false,

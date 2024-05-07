@@ -7,8 +7,16 @@ import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useCookies } from "react-cookie";
+import ScaleLoader from "react-spinners/ScaleLoader";
+
 
 const Register = () => {
+  const [loading, setLoading] = useState(true); // Set loading initially to true
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false); // Set loading to false after 1500ms
+    }, 1300);
+  }, []);
   const [idType, setIdType] = useState("Aadhaar");
   const [idNumber, setIdNumber] = useState("");
   const [step, setStep] = useState(1);
@@ -48,6 +56,7 @@ const Register = () => {
 
   const handleSubmit = async () => {
     try {
+      setLoading(true);
       const response = await axios.post(
         "https://nhpr-registration.onrender.com/api/register/aadhaar",
         {
@@ -72,14 +81,18 @@ const Register = () => {
         if (response1.data.success) {
           toast.info("Enter OTP sent to your Aadhaar linked mobile number.");
           setStep(2);
+          setLoading(false);
         } else {
           toast.error("OTP couldn't be sent.");
+          setLoading(false);
         }
       } else {
         toast.error(response.data.message);
+        setLoading(false);
       }
     } catch (error) {
       toast.error(error);
+      setLoading(false);
     }
   };
 
@@ -118,6 +131,7 @@ const Register = () => {
 
     const handleSubmit2 = async () => {
       try {
+        setLoading(true);
         const otpString = otp.join("");
         //console.log(otpString);
         const response = await axios.post(
@@ -129,11 +143,14 @@ const Register = () => {
             "OTP verification successful. Fill the registartion form."
           );
           navigate("/registrationForm");
+          setLoading(false);
         } else {
           toast.error(response.data.message);
+          setLoading(false);
         }
       } catch (error) {
-        console.error(error);
+        toast.error(error);
+        setLoading(false);
       }
     };
 
@@ -187,182 +204,197 @@ const Register = () => {
 
   return (
     <div className="flex justify-center items-center">
-      <div className="bg-white px-6 py-4 rounded-md w-2/5 my-6">
-        <h2 className="text-2xl mb-1 font-bold">
-          Create your Healthcare Professional ID
-        </h2>
-        <p className="text-sm">
-          The Healthcare professional ID will connect you to the India's Digital
-          Health Ecosystem
-        </p>
-        <p className="mt-2">Generate Healthcare professional ID via</p>
-        <div className="flex justify-between my-4">
-          <button
-            className={`px-20 py-3 rounded-md border ${
-              idType === "Aadhaar" ? "border-orange-600" : "border-blue-300"
-            }`}
-            onClick={() => setIdType("Aadhaar")}
-          >
-            <div className="flex">
-              <img src="/aadhaar-1.svg" width={40} alt="Aadhaar Logo" />
-              <p className="ml-2">Aadhaar</p>
-            </div>
-          </button>
-          <button
-            className={`px-14 py-3 rounded-md border ${
-              idType === "Driving License"
-                ? "border-orange-600"
-                : "border-blue-300"
-            }`}
-            onClick={() => setIdType("Driving License")}
-          >
-            <div className="flex">
-              <ArticleOutlinedIcon />
-              <p className="ml-2">Driving License</p>
-            </div>
-          </button>
+      {loading ? ( // Show loader if loading is true
+        <div className="flex items-center justify-center h-screen">
+          <ScaleLoader
+            color="#FF7F00"
+            loading={loading}
+            height={35}
+            width={4}
+            radius={2}
+            margin={2}
+            speedMultiplier={2}
+          />
         </div>
-        {idType === "Aadhaar" ? (
-          <>
-            <p>Enter your Aadhaar Number/Virtual ID</p>
-            <div className="relative">
-              <input
-                type={passwordVisible ? "text" : "password"}
-                onChange={(e) => {
-                  setIdNumber(e.target.value);
-                }} // Toggle between text and password type
-                placeholder="Aadhaar Number"
-                className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
-              />
-              {passwordVisible ? (
-                <VisibilityOutlinedIcon
-                  className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
-                  onClick={togglePasswordVisibility}
+      ) : (
+        <div className="bg-white px-6 py-4 rounded-md w-2/5 my-6">
+          <h2 className="text-2xl mb-1 font-bold">
+            Create your Healthcare Professional ID
+          </h2>
+          <p className="text-sm">
+            The Healthcare professional ID will connect you to the India's
+            Digital Health Ecosystem
+          </p>
+          <p className="mt-2">Generate Healthcare professional ID via</p>
+          <div className="flex justify-between my-4">
+            <button
+              className={`px-20 py-3 rounded-md border ${
+                idType === "Aadhaar" ? "border-orange-600" : "border-blue-300"
+              }`}
+              onClick={() => setIdType("Aadhaar")}
+            >
+              <div className="flex">
+                <img src="/aadhaar-1.svg" width={40} alt="Aadhaar Logo" />
+                <p className="ml-2">Aadhaar</p>
+              </div>
+            </button>
+            <button
+              className={`px-14 py-3 rounded-md border ${
+                idType === "Driving License"
+                  ? "border-orange-600"
+                  : "border-blue-300"
+              }`}
+              onClick={() => setIdType("Driving License")}
+            >
+              <div className="flex">
+                <ArticleOutlinedIcon />
+                <p className="ml-2">Driving License</p>
+              </div>
+            </button>
+          </div>
+          {idType === "Aadhaar" ? (
+            <>
+              <p>Enter your Aadhaar Number/Virtual ID</p>
+              <div className="relative">
+                <input
+                  type={passwordVisible ? "text" : "password"}
+                  onChange={(e) => {
+                    setIdNumber(e.target.value);
+                  }} // Toggle between text and password type
+                  placeholder="Aadhaar Number"
+                  className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
                 />
-              ) : (
-                <VisibilityOffOutlinedIcon
-                  className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
-                  onClick={togglePasswordVisibility}
+                {passwordVisible ? (
+                  <VisibilityOutlinedIcon
+                    className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
+                    onClick={togglePasswordVisibility}
+                  />
+                ) : (
+                  <VisibilityOffOutlinedIcon
+                    className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
+                    onClick={togglePasswordVisibility}
+                  />
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <p>Enter your Driving Driving License Number</p>
+              <div className="relative">
+                <input
+                  type={passwordVisible ? "text" : "password"} // Toggle between text and password type
+                  placeholder="Driving License Number"
+                  onChange={(e) => {
+                    setIdNumber(e.target.value);
+                  }}
+                  className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
                 />
-              )}
-            </div>
-          </>
-        ) : (
-          <>
-            <p>Enter your Driving Driving License Number</p>
-            <div className="relative">
-              <input
-                type={passwordVisible ? "text" : "password"} // Toggle between text and password type
-                placeholder="Driving License Number"
-                onChange={(e) => {
-                  setIdNumber(e.target.value);
-                }}
-                className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
-              />
-              {passwordVisible ? (
-                <VisibilityOutlinedIcon
-                  className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
-                  onClick={togglePasswordVisibility}
+                {passwordVisible ? (
+                  <VisibilityOutlinedIcon
+                    className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
+                    onClick={togglePasswordVisibility}
+                  />
+                ) : (
+                  <VisibilityOffOutlinedIcon
+                    className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
+                    onClick={togglePasswordVisibility}
+                  />
+                )}
+              </div>
+            </>
+          )}
+          {step === 1 && (
+            <>
+              <div className="declaration-box h-12 overflow-y-auto">
+                <p className="text-xs font-semibold">
+                  I, hereby declare that I am voluntarily sharing my Aadhaar
+                  Number / Virtual ID and demographic information issued by
+                  UIDAI, with National Health Authority (NHA) for the sole
+                  purpose of creation of Healthcare Professional ID. I
+                  understand that my Healthcare Professional ID can be used and
+                  shared for purposes as may be notified by Ayushman Bharat
+                  Digital Mission (ABDM) from time to time including provision
+                  of healthcare services. Further, I am aware that my personal
+                  identifiable information (Name, Address, Age, Date of Birth,
+                  Gender and Photograph) may be made available to the entities
+                  working in the National Digital Health Ecosystem (NDHE) which
+                  inter alia includes stakeholders and entities such as
+                  healthcare professional (e.g. doctors), facilities (e.g.
+                  hospitals, laboratories) and data fiduciaries (e.g. health
+                  programmes), which are registered with or linked to the
+                  Ayushman Bharat Digital Mission (ABDM), and various processes
+                  there under. I authorize NHA to use my Aadhaar number /
+                  Virtual ID for performing Aadhaar based authentication with
+                  UIDAI as per the provisions of the Aadhaar (Targeted Delivery
+                  of Financial and other Subsidies, Benefits and Services) Act,
+                  2016 for the aforesaid purpose. I understand that UIDAI will
+                  share my e-KYC details, or response of “Yes” with NHA upon
+                  successful authentication. I consciously choose to use Aadhaar
+                  number / Virtual ID for the purpose of availing benefits
+                  across the NDHE. I am aware that my personal identifiable
+                  information excluding Aadhaar number / VID number can be used
+                  and shared for purposes as mentioned above. I reserve the
+                  right to revoke the given consent at any point of time as per
+                  provisions of Aadhaar Act and Regulations and other laws,
+                  rules and regulations.
+                </p>
+              </div>
+              <div className="flex items-center my-2">
+                <input
+                  type="checkbox"
+                  id="declaration"
+                  checked={isDeclarationChecked}
+                  onChange={handleDeclarationChange}
+                  className="mr-2"
                 />
-              ) : (
-                <VisibilityOffOutlinedIcon
-                  className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
-                  onClick={togglePasswordVisibility}
+                <label htmlFor="declaration" className="text-sm">
+                  I agree
+                </label>
+              </div>
+              <div className="flex items-center justify-start">
+                <span>
+                  {num1} + {num2} = ?
+                </span>
+                <input
+                  type="text"
+                  value={sum}
+                  onChange={handleSumChange}
+                  className="w-14 px-4 py-2 mx-4 border border-blue-300 rounded-md"
                 />
-              )}
-            </div>
-          </>
-        )}
-        {step === 1 && (
-          <>
-            <div className="declaration-box h-12 overflow-y-auto">
-              <p className="text-xs font-semibold">
-                I, hereby declare that I am voluntarily sharing my Aadhaar
-                Number / Virtual ID and demographic information issued by UIDAI,
-                with National Health Authority (NHA) for the sole purpose of
-                creation of Healthcare Professional ID. I understand that my
-                Healthcare Professional ID can be used and shared for purposes
-                as may be notified by Ayushman Bharat Digital Mission (ABDM)
-                from time to time including provision of healthcare services.
-                Further, I am aware that my personal identifiable information
-                (Name, Address, Age, Date of Birth, Gender and Photograph) may
-                be made available to the entities working in the National
-                Digital Health Ecosystem (NDHE) which inter alia includes
-                stakeholders and entities such as healthcare professional (e.g.
-                doctors), facilities (e.g. hospitals, laboratories) and data
-                fiduciaries (e.g. health programmes), which are registered with
-                or linked to the Ayushman Bharat Digital Mission (ABDM), and
-                various processes there under. I authorize NHA to use my Aadhaar
-                number / Virtual ID for performing Aadhaar based authentication
-                with UIDAI as per the provisions of the Aadhaar (Targeted
-                Delivery of Financial and other Subsidies, Benefits and
-                Services) Act, 2016 for the aforesaid purpose. I understand that
-                UIDAI will share my e-KYC details, or response of “Yes” with NHA
-                upon successful authentication. I consciously choose to use
-                Aadhaar number / Virtual ID for the purpose of availing benefits
-                across the NDHE. I am aware that my personal identifiable
-                information excluding Aadhaar number / VID number can be used
-                and shared for purposes as mentioned above. I reserve the right
-                to revoke the given consent at any point of time as per
-                provisions of Aadhaar Act and Regulations and other laws, rules
-                and regulations.
-              </p>
-            </div>
-            <div className="flex items-center my-2">
-              <input
-                type="checkbox"
-                id="declaration"
-                checked={isDeclarationChecked}
-                onChange={handleDeclarationChange}
-                className="mr-2"
-              />
-              <label htmlFor="declaration" className="text-sm">
-                I agree
-              </label>
-            </div>
-            <div className="flex items-center justify-start">
-              <span>
-                {num1} + {num2} = ?
-              </span>
-              <input
-                type="text"
-                value={sum}
-                onChange={handleSumChange}
-                className="w-14 px-4 py-2 mx-4 border border-blue-300 rounded-md"
-              />
-              <button onClick={generateRandomNumbers}>
-                <LoopIcon />
-              </button>
-            </div>
-            <div className="flex justify-between my-4">
-              <button
-                onClick={handleCancel}
-                className="w-auto px-28 py-3 mr-4 bg-slate-200 rounded-l-md"
-              >
-                Reset
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={!isValid} // Disable the button if sum is invalid
-                className={`w-auto px-28 py-3 ${
-                  isValid
-                    ? "bg-orange-600 text-white"
-                    : "bg-orange-400 text-gray-200"
-                } rounded-md`}
-              >
-                Submit
-              </button>
-            </div>
-            <div className="flex justify-center mt-4">
-              Already have an account?
-              <a href="/login" className="text-orange-600 ml-2">
-                Login here.
-              </a>
-            </div>
-          </>
-        )}
-        {step === 2 && <OTPInput />}
-      </div>
+                <button onClick={generateRandomNumbers}>
+                  <LoopIcon />
+                </button>
+              </div>
+              <div className="flex justify-between my-4">
+                <button
+                  onClick={handleCancel}
+                  className="w-auto px-28 py-3 mr-4 bg-slate-200 rounded-l-md"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={!isValid} // Disable the button if sum is invalid
+                  className={`w-auto px-28 py-3 ${
+                    isValid
+                      ? "bg-orange-600 text-white"
+                      : "bg-orange-400 text-gray-200"
+                  } rounded-md`}
+                >
+                  Submit
+                </button>
+              </div>
+              <div className="flex justify-center mt-4">
+                Already have an account?
+                <a href="/login" className="text-orange-600 ml-2">
+                  Login here.
+                </a>
+              </div>
+            </>
+          )}
+          {step === 2 && <OTPInput />}
+        </div>
+      )}
     </div>
   );
 };

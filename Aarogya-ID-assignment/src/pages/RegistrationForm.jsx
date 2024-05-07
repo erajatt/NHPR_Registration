@@ -6,6 +6,7 @@ import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
+import ScaleLoader from "react-spinners/ScaleLoader";
 
 const RegistrationForm = () => {
   const [formData, setFormData] = useState({
@@ -29,6 +30,13 @@ const RegistrationForm = () => {
   const [showMobileOtpPopup, setShowMobileOtpPopup] = useState(false);
   const [otpValue, setOtpValue] = useState("");
   const [token, setToken] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false); // Set loading to false after 1500ms
+    }, 1300);
+  }, []);
 
   const roles = [
     "I am a Healthcare Professional",
@@ -94,6 +102,7 @@ const RegistrationForm = () => {
 
   const handleSubmit = async () => {
     //console.log(formData);
+    setLoading(true);
     try {
       const response = await axios.post(
         "https://nhpr-registration.onrender.com/api/register/userAadhaarUpdateControl",
@@ -103,25 +112,35 @@ const RegistrationForm = () => {
       if (response.data.success) {
         toast.success("Registration successful. Log in to continue.");
         navigate("/login");
+        setLoading(false);
       } else {
         toast.error(response.data.message);
+        setLoading(false);
       }
     } catch (error) {
       toast.error(error);
+      setLoading(false);
     }
   };
 
   const handleVerifyEmail = async () => {
+    setLoading(true);
     const response = await axios.post(
       "https://nhpr-registration.onrender.com/api/register/sendVerificationEmail",
       token
     );
     if (response.data.success) {
       toast.success("Verification link has been sent to your email address.");
+      setLoading(false);
+    } else {
+      toast.error("Verification link couldnot be sent. Please try again.");
+      setLoading(false);
     }
   };
 
   const handleVerifyPhoneNumber = async () => {
+    setLoading(true);
+
     const response = await axios.post(
       "https://nhpr-registration.onrender.com/api/register/sendOTP",
       {
@@ -134,6 +153,10 @@ const RegistrationForm = () => {
       toast.info(
         "Please enter the OTP received on your mobile number to continue."
       );
+      setLoading(false);
+    } else {
+      toast.error("OTP could not be sent");
+      setLoading(false);
     }
   };
 
@@ -167,16 +190,16 @@ const RegistrationForm = () => {
           { code: otpString, token, phone: `+91${formData.phone}` }
         );
         if (response.data.success) {
-          setShowMobileOtpPopup(false); // Close OTP popup
+          setShowMobileOtpPopup(false);
           toast.success(
-            "OTP verification successful. Fill the registartion form."
+            "Mobile number has been verified."
           );
-          navigate("/registrationForm");
+          // navigate("/registrationForm");
         } else {
           toast.error(response.data.message);
         }
       } catch (error) {
-        console.error(error);
+        toast.error(error);
       }
     };
 
@@ -214,267 +237,286 @@ const RegistrationForm = () => {
   return (
     <div className="flex justify-center items-center">
       {showMobileOtpPopup && <OTPInput />}
-      <div className="bg-white px-6 py-4 rounded-md w-4/5 my-6">
-        <div className="w-full px-4 py-2 my-2 mb-4 text-white bg-blue-900 border rounded-md">
-          <h1 className="text-lg font-semibold">
-            Registration Form (Mobile verification is required)
-          </h1>
+      {loading ? ( // Show loader if loading is true
+        <div className="flex items-center justify-center h-screen">
+          <ScaleLoader
+            color="#FF7F00"
+            loading={loading}
+            height={35}
+            width={4}
+            radius={2}
+            margin={2}
+            speedMultiplier={2}
+          />
         </div>
-        <div className="flex justify-between space-x-4">
-          <div className="w-1/3 font-semibold">
-            Mobile Number<span className="text-orange-600">*</span>
+      ) : (
+        <div className="bg-white px-6 py-4 rounded-md w-4/5 my-6">
+          <div className="w-full px-4 py-2 my-2 mb-4 text-white bg-blue-900 border rounded-md">
+            <h1 className="text-lg font-semibold">
+              Registration Form (Mobile verification is required)
+            </h1>
           </div>
-          <div className="w-1/3 font-semibold">
-            Email<span className="text-orange-600">*</span>
+          <div className="flex justify-between space-x-4">
+            <div className="w-1/3 font-semibold">
+              Mobile Number<span className="text-orange-600">*</span>
+            </div>
+            <div className="w-1/3 font-semibold">
+              Email<span className="text-orange-600">*</span>
+            </div>
+            <div className="w-1/3 font-semibold">
+              Date of Birth<span className="text-orange-600">*</span>
+            </div>
           </div>
-          <div className="w-1/3 font-semibold">
-            Date of Birth<span className="text-orange-600">*</span>
+          <div className="flex justify-between space-x-4">
+            <div className="relative w-1/3">
+              <input
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
+                required
+              />
+              <button
+                className="absolute top-5 right-5 text-orange-600 rounded-md"
+                onClick={handleVerifyPhoneNumber}
+              >
+                Verify
+              </button>
+            </div>
+            <div className="relative w-1/3">
+              <input
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
+                required
+              />
+              <button
+                className="absolute top-5 right-5 text-orange-600 rounded-md"
+                onClick={handleVerifyEmail}
+              >
+                Verify
+              </button>
+            </div>
+            <div className="relative w-1/3">
+              <input
+                name="dob"
+                value={formData.dob}
+                onChange={handleChange}
+                className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
+                required
+              />
+            </div>
           </div>
-        </div>
-        <div className="flex justify-between space-x-4">
-          <div className="relative w-1/3">
-            <input
-              name="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
-              required
-            />
-            <button
-              className="absolute top-5 right-5 text-orange-600 rounded-md"
-              onClick={handleVerifyPhoneNumber}
-            >
-              Verify
-            </button>
-          </div>
-          <div className="relative w-1/3">
-            <input
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
-              required
-            />
-            <button
-              className="absolute top-5 right-5 text-orange-600 rounded-md"
-              onClick={handleVerifyEmail}
-            >
-              Verify
-            </button>
-          </div>
-          <div className="relative w-1/3">
-            <input
-              name="dob"
-              value={formData.dob}
-              onChange={handleChange}
-              className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
-              required
-            />
-          </div>
-        </div>
 
-        <div className="flex justify-between space-x-4">
-          <div className="w-1/3 text-xs text-gray-400">
-            Mobile number linked with Aadhaar will get auto verified, OTP will
-            be sent in case mobile number is different.
+          <div className="flex justify-between space-x-4">
+            <div className="w-1/3 text-xs text-gray-400">
+              Mobile number linked with Aadhaar will get auto verified, OTP will
+              be sent in case mobile number is different.
+            </div>
+            <div className="w-1/3 text-xs text-gray-400">
+              Email verification is not mandatory
+            </div>
+            <div className="w-1/3"></div>
           </div>
-          <div className="w-1/3 text-xs text-gray-400">
-            Email verification is not mandatory
-          </div>
-          <div className="w-1/3"></div>
-        </div>
 
-        <div className="flex justify-between space-x-4 mt-4">
-          <div className="w-1/3">
-            <label htmlFor="district" className="font-semibold">
-              District<span className="text-orange-600">*</span>
-            </label>
-            <select
-              id="district"
-              name="district"
-              className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md cursor-pointer"
-              value={formData.district}
-              onChange={handleChange}
-            >
-              <option value="">Select District</option>
-              {districts.map((district) => (
-                <option key={district} value={district}>
-                  {district}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="w-1/3">
-            <label htmlFor="subDistrict" className="font-semibold">
-              Sub-District<span className="text-orange-600">*</span>
-            </label>
-            <select
-              id="subDistrict"
-              name="subDistrict"
-              className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md cursor-pointer"
-              value={formData.subDistrict}
-              onChange={handleChange}
-            >
-              <option value="">Select Sub-District</option>
-              {subDistricts.map((subDistrict) => (
-                <option key={subDistrict} value={subDistrict}>
-                  {subDistrict}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="w-1/3"></div>
-        </div>
-        <div className="font-semibold mt-4">Roles</div>
-        {roles.map((role) => (
-          <div
-            key={role}
-            className="flex items-center space-x-2 cursor-pointer my-2"
-            onClick={() => handleRoleChange(role)}
-          >
-            {formData.role === role ? (
-              <RadioButtonCheckedRoundedIcon color="primary" />
-            ) : (
-              <RadioButtonUncheckedOutlinedIcon />
-            )}
-            <span>{role}</span>
-          </div>
-        ))}
-        {formData.role && (
-          <>
+          <div className="flex justify-between space-x-4 mt-4">
             <div className="w-1/3">
-              <label htmlFor="category" className="font-semibold flex">
-                Category<span className="text-orange-600">*</span>
+              <label htmlFor="district" className="font-semibold">
+                District<span className="text-orange-600">*</span>
               </label>
               <select
-                id="category"
-                name="category"
+                id="district"
+                name="district"
                 className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md cursor-pointer"
-                value={formData.category}
+                value={formData.district}
                 onChange={handleChange}
-                required
               >
-                <option value="">Select category</option>
-                {categoryOptions[formData.role]?.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
+                <option value="">Select District</option>
+                {districts.map((district) => (
+                  <option key={district} value={district}>
+                    {district}
                   </option>
                 ))}
               </select>
             </div>
-            {(formData.category === "doctor" || formData.category === "nurse") && (
+            <div className="w-1/3">
+              <label htmlFor="subDistrict" className="font-semibold">
+                Sub-District<span className="text-orange-600">*</span>
+              </label>
+              <select
+                id="subDistrict"
+                name="subDistrict"
+                className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md cursor-pointer"
+                value={formData.subDistrict}
+                onChange={handleChange}
+              >
+                <option value="">Select Sub-District</option>
+                {subDistricts.map((subDistrict) => (
+                  <option key={subDistrict} value={subDistrict}>
+                    {subDistrict}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-1/3"></div>
+          </div>
+          <div className="font-semibold mt-4">Roles</div>
+          {roles.map((role) => (
+            <div
+              key={role}
+              className="flex items-center space-x-2 cursor-pointer my-2"
+              onClick={() => handleRoleChange(role)}
+            >
+              {formData.role === role ? (
+                <RadioButtonCheckedRoundedIcon color="primary" />
+              ) : (
+                <RadioButtonUncheckedOutlinedIcon />
+              )}
+              <span>{role}</span>
+            </div>
+          ))}
+          {formData.role && (
+            <>
               <div className="w-1/3">
-                <label htmlFor="subCategory" className="font-semibold flex">
-                  Sub-Category<span className="text-orange-600">*</span>
+                <label htmlFor="category" className="font-semibold flex">
+                  Category<span className="text-orange-600">*</span>
                 </label>
                 <select
-                  id="subCategory"
-                  name="subCategory"
+                  id="category"
+                  name="category"
                   className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md cursor-pointer"
-                  value={formData.subCategory}
+                  value={formData.category}
                   onChange={handleChange}
+                  required
                 >
-                  <option value="">Select Sub-Category</option>
-                  {subCategoryOptions[formData.category]?.map((subCategory) => (
-                    <option key={subCategory} value={subCategory}>
-                      {subCategory}
+                  <option value="">Select category</option>
+                  {categoryOptions[formData.role]?.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
                     </option>
                   ))}
                 </select>
               </div>
-            )}
-          </>
-        )}
+              {(formData.category === "doctor" ||
+                formData.category === "nurse") && (
+                <div className="w-1/3">
+                  <label htmlFor="subCategory" className="font-semibold flex">
+                    Sub-Category<span className="text-orange-600">*</span>
+                  </label>
+                  <select
+                    id="subCategory"
+                    name="subCategory"
+                    className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md cursor-pointer"
+                    value={formData.subCategory}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select Sub-Category</option>
+                    {subCategoryOptions[formData.category]?.map(
+                      (subCategory) => (
+                        <option key={subCategory} value={subCategory}>
+                          {subCategory}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </div>
+              )}
+            </>
+          )}
 
-        <div className="flex justify-between space-x-4">
-          <div className="w-1/3 font-semibold flex">
-            Healthcare Professional ID/username
-            <span className="text-orange-600">*</span>
+          <div className="flex justify-between space-x-4">
+            <div className="w-1/3 font-semibold flex">
+              Healthcare Professional ID/username
+              <span className="text-orange-600">*</span>
+            </div>
+            <div className="w-1/3 font-semibold flex">
+              Password<span className="text-orange-600">*</span>
+            </div>
+            <div className="w-1/3 font-semibold flex">
+              Confirm Password<span className="text-orange-600">*</span>
+            </div>
           </div>
-          <div className="w-1/3 font-semibold flex">
-            Password<span className="text-orange-600">*</span>
-          </div>
-          <div className="w-1/3 font-semibold flex">
-            Confirm Password<span className="text-orange-600">*</span>
-          </div>
-        </div>
-        <div className="flex justify-between space-x-4">
-          <div className="relative w-1/3">
-            <input
-              name="username"
-              className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
-            <span className="absolute top-5 right-5 rounded-md">@hpr.abdm</span>
-          </div>
-          <div className="relative w-1/3">
-            <input
-              name="password"
-              type={passwordVisible ? "text" : "password"}
-              required
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
-            />
-            {passwordVisible ? (
-              <VisibilityOffOutlinedIcon
-                className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
-                onClick={togglePasswordVisibility}
+          <div className="flex justify-between space-x-4">
+            <div className="relative w-1/3">
+              <input
+                name="username"
+                className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
+                value={formData.username}
+                onChange={handleChange}
+                required
               />
-            ) : (
-              <VisibilityOutlinedIcon
-                className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
-                onClick={togglePasswordVisibility}
+              <span className="absolute top-5 right-5 rounded-md">
+                @hpr.abdm
+              </span>
+            </div>
+            <div className="relative w-1/3">
+              <input
+                name="password"
+                type={passwordVisible ? "text" : "password"}
+                required
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
               />
-            )}
+              {passwordVisible ? (
+                <VisibilityOffOutlinedIcon
+                  className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
+                  onClick={togglePasswordVisibility}
+                />
+              ) : (
+                <VisibilityOutlinedIcon
+                  className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
+                  onClick={togglePasswordVisibility}
+                />
+              )}
+            </div>
+            <div className="relative w-1/3">
+              <input
+                name="confirmPassword"
+                type={confirmPasswordVisible ? "text" : "password"}
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
+              />
+              {confirmPasswordVisible ? (
+                <VisibilityOffOutlinedIcon
+                  className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
+                  onClick={toggleConfirmPasswordVisibility}
+                />
+              ) : (
+                <VisibilityOutlinedIcon
+                  className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
+                  onClick={toggleConfirmPasswordVisibility}
+                />
+              )}
+            </div>
           </div>
-          <div className="relative w-1/3">
-            <input
-              name="confirmPassword"
-              type={confirmPasswordVisible ? "text" : "password"}
-              required
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
-            />
-            {confirmPasswordVisible ? (
-              <VisibilityOffOutlinedIcon
-                className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
-                onClick={toggleConfirmPasswordVisibility}
-              />
-            ) : (
-              <VisibilityOutlinedIcon
-                className="absolute top-1/2 transform -translate-y-1/2 right-3 cursor-pointer"
-                onClick={toggleConfirmPasswordVisibility}
-              />
-            )}
-          </div>
-        </div>
 
-        <div className="flex justify-between">
-          <div className=" bg-blue-100 text-blue-950 font-semibold py-3 px-4">
-            <button>Reset</button>
-          </div>
-          <div
-            className={`w-auto px-28 py-3 ${
-              formData.password === formData.confirmPassword
-                ? "bg-orange-600 text-white"
-                : "bg-orange-400 text-gray-200"
-            } rounded-md`}
-          >
-            <button
-              disabled={formData.password !== formData.confirmPassword}
-              onClick={handleSubmit}
+          <div className="flex justify-between">
+            <div className=" bg-blue-100 text-blue-950 font-semibold py-3 px-4">
+              <button>Reset</button>
+            </div>
+            <div
+              className={`w-auto px-28 py-3 ${
+                formData.password === formData.confirmPassword
+                  ? "bg-orange-600 text-white"
+                  : "bg-orange-400 text-gray-200"
+              } rounded-md`}
             >
-              Submit
-            </button>
+              <button
+                disabled={formData.password !== formData.confirmPassword}
+                onClick={handleSubmit}
+              >
+                Submit
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

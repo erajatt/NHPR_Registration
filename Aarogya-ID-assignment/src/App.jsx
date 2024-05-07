@@ -11,24 +11,39 @@ import RegistrationForm from "./pages/RegistrationForm";
 import Header from "./components/Header";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ScaleLoader from "react-spinners/ScaleLoader";
+import { useEffect, useState } from "react";
 
 function App() {
+  const [loading, setLoading] = useState(true); // Set loading initially to true
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false); // Set loading to false after 1500ms
+    }, 1300);
+  }, []);
+
   return (
     <div className="bg-slate-200 min-h-screen">
-      <BrowserRouter>
-      <ToastContainer autoClose={2000} />
-      <Header/>
-      <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/support" element={<Support />} />
-          <Route path="/resource" element={<Resource />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/registrationform" element={<RegistrationForm />} />
-        </Routes>
-      </BrowserRouter>
+      {loading ? ( // Show loader if loading is true
+        <div className="flex items-center justify-center h-screen">
+          <ScaleLoader color="#FF7F00" loading={loading} height={35} width={4} radius={2} margin={2} speedMultiplier={2} />
+        </div>
+      ) : (
+        <BrowserRouter>
+          <ToastContainer autoClose={2000} />
+          <Header />
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/resource" element={<Resource />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/registrationform" element={<RegistrationForm />} />
+          </Routes>
+        </BrowserRouter>
+      )}
     </div>
   );
 }
