@@ -31,6 +31,10 @@ const RegistrationForm = () => {
   const [otpValue, setOtpValue] = useState("");
   const [token, setToken] = useState("");
   const [loading, setLoading] = useState(true);
+  const [mobileNumberVerified, setMobileNumberVerified]=useState(true);
+  const [emailVerified, setEmailVerified]=useState(false);
+
+
 
   useEffect(() => {
     setTimeout(() => {
@@ -105,7 +109,7 @@ const RegistrationForm = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://nhpr-registration.onrender.com/api/register/userAadhaarUpdateControl",
+        "http://localhost:3001/api/register/userAadhaarUpdateControl",
         formData
       );
       //console.log("Response:", response.data);
@@ -125,14 +129,16 @@ const RegistrationForm = () => {
 
   const handleVerifyEmail = async () => {
     setLoading(true);
+    console.log(token);
     const response = await axios.post(
-      "https://nhpr-registration.onrender.com/api/register/sendVerificationEmail",
+      "http://localhost:3001/api/register/sendVerificationEmail",
       token
     );
     if (response.data.success) {
       toast.success("Verification link has been sent to your email address.");
       setLoading(false);
     } else {
+      console.log("failed")
       toast.error("Verification link couldnot be sent. Please try again.");
       setLoading(false);
     }
@@ -142,7 +148,7 @@ const RegistrationForm = () => {
     setLoading(true);
 
     const response = await axios.post(
-      "https://nhpr-registration.onrender.com/api/register/sendOTP",
+      "http://localhost:3001/api/register/sendOTP",
       {
         token,
         phone: `+91${formData.phone}`,
@@ -186,14 +192,13 @@ const RegistrationForm = () => {
         const otpString = otp.join("");
         //console.log(otpString);
         const response = await axios.post(
-          "https://nhpr-registration.onrender.com/api/register/verifyOTP",
+          "http://localhost:3001/api/register/verifyOTP",
           { code: otpString, token, phone: `+91${formData.phone}` }
         );
         if (response.data.success) {
           setShowMobileOtpPopup(false);
-          toast.success(
-            "Mobile number has been verified."
-          );
+          toast.success("Mobile number has been verified.");
+          setMobileNumberVerified(true);
           // navigate("/registrationForm");
         } else {
           toast.error(response.data.message);
@@ -274,15 +279,20 @@ const RegistrationForm = () => {
                 type="tel"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
+                className={`w-full px-4 py-3 my-2 mb-4 border rounded-md ${mobileNumberVerified===true? "border-gray-400 bg-gray-200 text-gray-600":" border-blue-300"}`}
+                disabled={mobileNumberVerified===true}
                 required
               />
+              {!mobileNumberVerified ? (
               <button
                 className="absolute top-5 right-5 text-orange-600 rounded-md"
                 onClick={handleVerifyPhoneNumber}
               >
                 Verify
               </button>
+              ):(
+                <img src="/verified-symbol-icon.svg" className="absolute top-5 right-4" width={25}></img>
+              )}
             </div>
             <div className="relative w-1/3">
               <input
@@ -290,15 +300,20 @@ const RegistrationForm = () => {
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
+                className={`w-full px-4 py-3 my-2 mb-4 border rounded-md ${emailVerified===true? "border-gray-400 bg-gray-200 text-gray-600":" border-blue-300"}`}
+                disabled={emailVerified===true}
                 required
               />
+              {!emailVerified ? (
               <button
                 className="absolute top-5 right-5 text-orange-600 rounded-md"
                 onClick={handleVerifyEmail}
               >
                 Verify
               </button>
+              ):(
+                <img src="/verified-symbol-icon.svg" className="absolute top-5 right-4" width={25}></img>
+              )}
             </div>
             <div className="relative w-1/3">
               <input

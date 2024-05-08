@@ -9,7 +9,6 @@ import axios from "axios";
 import { useCookies } from "react-cookie";
 import ScaleLoader from "react-spinners/ScaleLoader";
 
-
 const Register = () => {
   const [loading, setLoading] = useState(true); // Set loading initially to true
   useEffect(() => {
@@ -58,7 +57,7 @@ const Register = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://nhpr-registration.onrender.com/api/register/aadhaar",
+        "http://localhost:3001/api/register/aadhaar",
         {
           aadhaar: idNumber,
         }
@@ -70,9 +69,9 @@ const Register = () => {
         window.localStorage.setItem("token", response.data.token);
         //console.log(response.data.token);
         const response1 = await axios.post(
-          "https://nhpr-registration.onrender.com/api/register/sendOTP",
+          "http://localhost:3001/api/register/sendOTP",
           {
-            phone: "+919982805879",
+            phone: "+917978189618",
             token: response.data.token,
           }
         );
@@ -135,8 +134,8 @@ const Register = () => {
         const otpString = otp.join("");
         //console.log(otpString);
         const response = await axios.post(
-          "https://nhpr-registration.onrender.com/api/register/verifyOTP",
-          { code: otpString, token, phone: "+919982805879" }
+          "http://localhost:3001/api/register/verifyOTP",
+          { code: otpString, token, phone: "+917978189618" }
         );
         if (response.data.success) {
           toast.success(
@@ -260,9 +259,14 @@ const Register = () => {
                   type={passwordVisible ? "text" : "password"}
                   onChange={(e) => {
                     setIdNumber(e.target.value);
-                  }} // Toggle between text and password type
+                  }}
                   placeholder="Aadhaar Number"
-                  className="w-full px-4 py-3 my-2 mb-4 border border-blue-300 rounded-md"
+                  className={`w-full px-4 py-3 my-2 mb-4 border rounded-md ${
+                    step === 2
+                      ? "border-gray-400 bg-gray-200 text-gray-600"
+                      : "border-blue-300"
+                  }`}
+                  disabled={step === 2} // Disable input when step is 2
                 />
                 {passwordVisible ? (
                   <VisibilityOutlinedIcon
