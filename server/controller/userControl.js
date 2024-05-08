@@ -56,7 +56,7 @@ const userSendVerificationEmail = async (req, res) => {
     from: "rajatrkb6@gmail.com",
     to: email,
     subject: "NHPR Email Verification",
-    html: `To verify your Email click on the <a href='http://localhost:3001/api/register/verifyEmail?token=${token}'>link</a>`,
+    html: `To verify your Email click on the <a href='https://nhpr-registration.onrender.com/api/register/verifyEmail?token=${token}'>link</a>`,
   };
 
   try {
