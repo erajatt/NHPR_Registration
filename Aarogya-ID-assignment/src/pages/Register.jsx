@@ -57,7 +57,7 @@ const Register = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://nhpr-registration.onrender.com/api/register/aadhaar",
+        "http://localhost:3001/api/register/aadhaar",
         {
           aadhaar: idNumber,
         }
@@ -69,7 +69,7 @@ const Register = () => {
         window.localStorage.setItem("token", response.data.token);
         //console.log(response.data.token);
         const response1 = await axios.post(
-          "https://nhpr-registration.onrender.com/api/register/sendOTP",
+          "http://localhost:3001/api/register/sendOTP",
           {
             phone: "+917978189618",
             token: response.data.token,
@@ -134,7 +134,7 @@ const Register = () => {
         const otpString = otp.join("");
         //console.log(otpString);
         const response = await axios.post(
-          "https://nhpr-registration.onrender.com/api/register/verifyOTP",
+          "http://localhost:3001/api/register/verifyOTP",
           { code: otpString, token, phone: "+917978189618" }
         );
         if (response.data.success) {

@@ -41,6 +41,8 @@ const userAadhaarRegisterControl = async (req, res) => {
 
 const userSendVerificationEmail = async (req, res) => {
   const { token, email } = req.body;
+  console.log(token);
+  console.log(email);
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -56,26 +58,26 @@ const userSendVerificationEmail = async (req, res) => {
     from: "rajatrkb6@gmail.com",
     to: email,
     subject: "NHPR Email Verification",
-    html: `To verify your Email click on the <a href='https://nhpr-registration.onrender.com/api/register/verifyEmail?token=${token}'>link</a>`,
+    html: `To verify your Email click on the <a href='http://localhost:3001/api/register/verifyEmail?token=${token}'>link</a>`,
   };
 
   try {
     transporter.sendMail(mailOptions, async (error, info) => {
       if (error) {
-        //console.log(`Error sending Verification email\n ${error}`);
+        console.log(`Error sending Verification email\n ${error}`);
         return res.json({
           message: `Error sending Verification email .`,
           success: false,
         });
       }
-      //console.log("Email sent:", info?.response);
+      console.log("Email sent:", info?.response);
       return res.json({
         message: `Verification email sent to ${email}`,
         success: true,
       });
     });
   } catch (err) {
-    //console.log("Error sending email Verification:", err);
+    console.log("Error sending email Verification:", err);
   }
 };
 
