@@ -107,7 +107,7 @@ const RegistrationForm = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/register/userAadhaarUpdateControl",
+        "https://nhpr-registration.onrender.com/api/register/userAadhaarUpdateControl",
         formData
       );
       //console.log("Response:", response.data);
@@ -129,8 +129,8 @@ const RegistrationForm = () => {
     setLoading(true);
     console.log(token);
     const response = await axios.post(
-      "http://localhost:3001/api/register/sendVerificationEmail",
-      {token, email:formData.email}
+      "https://nhpr-registration.onrender.com/api/register/sendVerificationEmail",
+      { token, email: formData.email }
     );
     if (response.data.success) {
       toast.success("Verification link has been sent to your email address.");
@@ -146,7 +146,7 @@ const RegistrationForm = () => {
     setLoading(true);
 
     const response = await axios.post(
-      "http://localhost:3001/api/register/sendOTP",
+      "https://nhpr-registration.onrender.com/api/register/sendOTP",
       {
         token,
         phone: `+91${formData.phone}`,
@@ -190,7 +190,7 @@ const RegistrationForm = () => {
         const otpString = otp.join("");
         //console.log(otpString);
         const response = await axios.post(
-          "http://localhost:3001/api/register/verifyOTP",
+          "https://nhpr-registration.onrender.com/api/register/verifyOTP",
           { code: otpString, token, phone: `+91${formData.phone}` }
         );
         if (response.data.success) {
