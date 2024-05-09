@@ -15,10 +15,10 @@ import ScaleLoader from "react-spinners/ScaleLoader";
 import { useEffect, useState } from "react";
 
 function App() {
-  const [loading, setLoading] = useState(true); // Set loading initially to true
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     setTimeout(() => {
-      setLoading(false); // Set loading to false after 1500ms
+      setLoading(false);
     }, 1300);
   }, []);
 
