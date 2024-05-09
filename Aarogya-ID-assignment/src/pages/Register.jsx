@@ -156,7 +156,7 @@ const Register = () => {
     return (
       <div>
         <div className="text-sm mb-4">
-          We have sent an OTP to the Aadhaar linked Mobile number ******9618
+          We have sent an OTP to the Aadhaar linked Mobile number ******0036.
         </div>
         <div className="flex justify-start items-center">
           {otp.map((digit, index) => (
