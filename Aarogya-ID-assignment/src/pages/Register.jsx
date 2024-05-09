@@ -71,7 +71,7 @@ const Register = () => {
         const response1 = await axios.post(
           "https://nhpr-registration.onrender.com/api/register/sendOTP",
           {
-            phone: "+919908760036",
+            phone: "+9179781896",
             token: response.data.token,
           }
         );

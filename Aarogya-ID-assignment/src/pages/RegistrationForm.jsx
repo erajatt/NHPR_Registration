@@ -6,6 +6,7 @@ import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
+import CloseIcon from '@mui/icons-material/Close';
 import ScaleLoader from "react-spinners/ScaleLoader";
 
 const RegistrationForm = () => {
@@ -209,8 +210,9 @@ const RegistrationForm = () => {
     return (
       <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
         <div className="bg-white p-6 rounded-md max-w-md">
+          <button className='absolute top-2 right-2 hover:text-gray-700' onClick={setShowMobileOtpPopup(false)}><CloseIcon/></button>
           <h2 className="text-xl font-semibold mb-4">
-            Enter OTP sent to your mobile number ${formData.phone}
+            {`Enter OTP sent to your mobile number ${formData.phone}`}
           </h2>
           <div className="flex justify-center space-x-4">
             {otp.map((digit, index) => (
