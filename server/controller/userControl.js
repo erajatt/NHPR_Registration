@@ -172,8 +172,8 @@ const userVerifyOTP = async (req, res) => {
 };
 
 const userAadhaarUpdateControl = async (req, res) => {
+  console.log(req.body.token);
   const {
-    token,
     username,
     phone,
     email,
@@ -184,51 +184,36 @@ const userAadhaarUpdateControl = async (req, res) => {
     subCategory,
     role,
     password,
-  } = req.body;
+  } = req.body.formData;
+  const token = req.body.token;
   const decodedToken = jwt.decode(String(token), process.env.JWT_SECRET);
   const aadhaar = decodedToken.id;
   try {
     const user1 = await userModel.findOne({ aadhaar });
-    if (!accountVerified) {
-      return res.json({
-        message: "Account not Verified. Please try again!",
-        success: false,
-      });
-    } else if (!phoneVerified) {
-      return res.json({
-        message: "Phone not Verified. please try again!",
-        success: false,
-      });
-    } else if (!emailVerified) {
-      return res.json({
-        message: "Email not Verified .Please try again!",
-        success: false,
-      });
-    } else {
-      await userModel.findOneAndUpdate(
-        { aadhaar },
-        {
-          username,
-          phone,
-          email,
-          dob,
-          district,
-          subDistrict,
-          category,
-          subCategory,
-          role,
-          password,
-        }
-      );
 
-      //console.log(`Details Updated.`);
-      return res.json({
-        message: "Details updated.",
-        success: true,
-      });
-    }
+    await userModel.findOneAndUpdate(
+      { aadhaar },
+      {
+        username,
+        phone,
+        email,
+        dob,
+        district,
+        subDistrict,
+        category,
+        subCategory,
+        role,
+        password,
+      }
+    );
+
+    console.log(`Details Updated.`);
+    return res.json({
+      message: "Details updated.",
+      success: true,
+    });
   } catch (error) {
-    //console.log("Error: ", error.message);
+    console.log("Error: ", error.message);
     return res.json({
       message: "Some error occured please try again!",
       success: false,

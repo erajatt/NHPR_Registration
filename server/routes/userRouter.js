@@ -15,6 +15,6 @@ userRouter.post("/sendVerificationEmail", userSendVerificationEmail);
 userRouter.get("/verifyEmail", userVerifyEmail);
 userRouter.post("/sendOTP", userSendOTP);
 userRouter.post("/verifyOTP", userVerifyOTP);
-userRouter.post("/submitRegistrationForm", userAadhaarUpdateControl);
+userRouter.post("/userAadhaarUpdateControl", userAadhaarUpdateControl);
 
 export default userRouter;
