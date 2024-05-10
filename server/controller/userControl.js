@@ -89,7 +89,7 @@ const userVerifyEmail = async (req, res) => {
     await userModel.findOneAndUpdate({ aadhaar }, { emailVerified: true });
     //console.log(req.query);
     return res.json({
-      message: `Email Verified ${token}`,
+      message: `Email Verified. Please fill other details and submit the form`,
       success: true,
     });
   } catch (error) {

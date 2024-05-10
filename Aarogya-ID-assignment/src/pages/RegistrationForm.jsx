@@ -530,14 +530,12 @@ const RegistrationForm = () => {
             <div className=" bg-blue-100 text-blue-950 font-semibold py-3 px-4">
               <button>Reset</button>
             </div>
-            <div
-              className={`w-auto px-28 py-3 ${
+            <div>
+              <button className={`w-auto px-28 py-3 ${
                 formData.password === formData.confirmPassword
                   ? "bg-orange-600 text-white"
                   : "bg-orange-400 text-gray-200"
               } rounded-md`}
-            >
-              <button
                 disabled={formData.password !== formData.confirmPassword}
                 onClick={handleSubmit}
               >
