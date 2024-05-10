@@ -190,6 +190,8 @@ const userAadhaarUpdateControl = async (req, res) => {
   const aadhaar = decodedToken.id;
   try {
     const user1 = await userModel.findOne({ aadhaar });
+    if (!user1.emailVerified)
+      return res.json({ message: "Email is not verified.", success: false });
 
     await userModel.findOneAndUpdate(
       { aadhaar },
