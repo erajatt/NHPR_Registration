@@ -1,6 +1,7 @@
 import { userModel } from "../models/Users.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import twilio from "twilio";
 dotenv.config();
@@ -34,6 +35,63 @@ const userAadhaarRegisterControl = async (req, res) => {
     console.log("Error: ", error.message);
     return res.json({
       message: "Some error occured please try again!",
+      success: false,
+    });
+  }
+};
+
+const userLoginControl = async (req, res) => {
+  const { phone, username, password } = req.body;
+
+  try {
+    if (!phone && !username) {
+      return res.status(400).json({
+        message: "Phone number or username is required.",
+        success: false,
+      });
+    }
+
+    let user;
+    if (phone) {
+      user = await userModel.findOne({ phone });
+      if (!user) {
+        return res.status(404).json({
+          message: "User with the given mobile number does not exist.",
+          success: false,
+        });
+      }
+    } else {
+      user = await userModel.findOne({ username });
+      if (!user) {
+        return res.status(404).json({
+          message: "User with the given username does not exist.",
+          success: false,
+        });
+      }
+    }
+
+    // Compare the hashed password with the entered password
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      return res.status(401).json({
+        message:
+          "Entered password is incorrect. Please check your credentials.",
+        success: false,
+      });
+    }
+
+    const token = jwt.sign({ id: user.aadhaar }, process.env.JWT_SECRET);
+
+    return res.status(200).json({
+      message: "Login successful",
+      token: token,
+      success: true,
+    });
+  } catch (error) {
+    console.error("Error during login:", error);
+    return res.status(500).json({
+      message: "Some error occurred. Please try again later.",
       success: false,
     });
   }
@@ -85,6 +143,8 @@ const userVerifyEmail = async (req, res) => {
   const { token } = req.query;
   const decodedToken = jwt.decode(String(token), process.env.JWT_SECRET);
   const aadhaar = decodedToken.id;
+  console.log(token);
+  console.log(aadhaar);
   try {
     await userModel.findOneAndUpdate({ aadhaar }, { emailVerified: true });
     //console.log(req.query);
@@ -188,8 +248,11 @@ const userAadhaarUpdateControl = async (req, res) => {
   const token = req.body.token;
   const decodedToken = jwt.decode(String(token), process.env.JWT_SECRET);
   const aadhaar = decodedToken.id;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  console.log(aadhaar);
   try {
     const user1 = await userModel.findOne({ aadhaar });
+    console.log(user1);
     if (!user1.emailVerified)
       return res.json({ message: "Email is not verified.", success: false });
 
@@ -205,7 +268,7 @@ const userAadhaarUpdateControl = async (req, res) => {
         category,
         subCategory,
         role,
-        password,
+        password: hashedPassword,
       }
     );
 
@@ -224,6 +287,7 @@ const userAadhaarUpdateControl = async (req, res) => {
 };
 export {
   userAadhaarRegisterControl,
+  userLoginControl,
   userAadhaarUpdateControl,
   userSendVerificationEmail,
   userVerifyEmail,

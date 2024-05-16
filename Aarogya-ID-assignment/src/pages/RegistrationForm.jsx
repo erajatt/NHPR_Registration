@@ -104,14 +104,15 @@ const RegistrationForm = () => {
   };
 
   const handleSubmit = async () => {
-    //console.log(formData);
     setLoading(true);
+    const { username: originalUsername, ...restFormData } = formData;
+    const username = `${originalUsername}@hpr.abdm`; 
+
     try {
       const response = await axios.post(
         "https://nhpr-registration.onrender.com/api/register/userAadhaarUpdateControl",
-        { formData, token }
+        { formData: { ...restFormData, username }, token }
       );
-      //console.log("Response:", response.data);
       if (response.data.success) {
         toast.success("Registration successful. Log in to continue.");
         navigate("/login");
@@ -128,7 +129,7 @@ const RegistrationForm = () => {
 
   const handleVerifyEmail = async () => {
     setLoading(true);
-    console.log(token);
+    // console.log(token);
     const response = await axios.post(
       "https://nhpr-registration.onrender.com/api/register/sendVerificationEmail",
       { token, email: formData.email }
@@ -137,7 +138,7 @@ const RegistrationForm = () => {
       toast.success("Verification link has been sent to your email address.");
       setLoading(false);
     } else {
-      console.log("failed");
+      // console.log("failed");
       toast.error("Verification link couldnot be sent. Please try again.");
       setLoading(false);
     }
@@ -531,11 +532,12 @@ const RegistrationForm = () => {
               <button>Reset</button>
             </div>
             <div>
-              <button className={`w-auto px-28 py-3 ${
-                formData.password === formData.confirmPassword
-                  ? "bg-orange-600 text-white"
-                  : "bg-orange-400 text-gray-200"
-              } rounded-md`}
+              <button
+                className={`w-auto px-28 py-3 ${
+                  formData.password === formData.confirmPassword
+                    ? "bg-orange-600 text-white"
+                    : "bg-orange-400 text-gray-200"
+                } rounded-md`}
                 disabled={formData.password !== formData.confirmPassword}
                 onClick={handleSubmit}
               >
